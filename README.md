@@ -8,7 +8,6 @@ This is an **mjlab-native** migration from the original IsaacLab-based `DDT_Lab-
 
 ## Prerequisites
 
-
 | Dependency | Version |
 | ---------- | ------- |
 | Python     | 3.11    |
@@ -58,8 +57,27 @@ Expected output:
 
 ```
 Available tasks:
+  Mjlab-Cartpole-Balance
+  Mjlab-Cartpole-Swingup
+  Mjlab-Lift-Cube-Yam
+  Mjlab-Lift-Cube-Yam-Depth
+  Mjlab-Lift-Cube-Yam-Rgb
+  Mjlab-Multi-Cube-Seg-Yam
+  Mjlab-Tracking-Flat-Unitree-G1
+  Mjlab-Tracking-Flat-Unitree-G1-No-State-Estimation
   Mjlab-Velocity-Flat-D1
+  Mjlab-Velocity-Flat-D1H
+  Mjlab-Velocity-Flat-Dynawheel
+  Mjlab-Velocity-Flat-TITA
+  Mjlab-Velocity-Flat-TITATIT
+  Mjlab-Velocity-Flat-Unitree-G1
+  Mjlab-Velocity-Flat-Unitree-Go1
   Mjlab-Velocity-Rough-D1
+  Mjlab-Velocity-Rough-D1H
+  Mjlab-Velocity-Rough-Dynawheel
+  Mjlab-Velocity-Rough-TITA
+  Mjlab-Velocity-Rough-Unitree-G1
+  Mjlab-Velocity-Rough-Unitree-Go1
 ```
 
 ---
@@ -70,19 +88,18 @@ Available tasks:
 conda activate <your_env_name>
 
 # D1 — flat ground
-python scripts/train.py Mjlab-Velocity-Flat-D1 # Task's name
+python scripts/train.py Mjlab-Velocity-Flat-Dynawheel
 ```
 
 ### Common flags
 
-
-| Flag               | Default | Description                           |
-| ------------------ | ------- | ------------------------------------- |
-| `--num_envs`       | 4096    | Number of parallel environments       |
-| `--max_iterations` | 5000    | Override total training iterations    |
-| `--device`         | `auto`  | Training device (`cuda:0` or `cpu`)   |
-| `--resume`         | False   | Resume training from a checkpoint     |
-| `--load_run`       | None    | Run directory to load checkpoint from |
+| Flag                 | Default  | Description                             |
+| -------------------- | -------- | --------------------------------------- |
+| `--num_envs`       | 4096     | Number of parallel environments         |
+| `--max_iterations` | 5000     | Override total training iterations      |
+| `--device`         | `auto` | Training device (`cuda:0` or `cpu`) |
+| `--resume`         | False    | Resume training from a checkpoint       |
+| `--load_run`       | None     | Run directory to load checkpoint from   |
 
 ### Logs
 
@@ -110,17 +127,16 @@ python scripts/train.py Mjlab-Velocity-Flat-D1 \
 
 ```bash
 # Play with a specific checkpoint
-python scripts/play.py Mjlab-Velocity-Flat-D1 \
-    --checkpoint-file logs/np3o/d1_flat/YYYY-MM-DD_HH-MM-SS/model_xxxx.pt
+python scripts/play.py Mjlab-Velocity-Flat-Dynawheel \
+    --checkpoint-file /home/yons/harryma/d1_mjlab/logs/np3o/titatit_flat/2026-09-23_14-47-50/model_600.pt
 ```
 
 ---
 
 ## Available robots & tasks
 
-
-| Robot  | Description           | Flat task                | Rough task                |
-| ------ | --------------------- | ------------------------ | ------------------------- |
+| Robot        | Description           | Flat task                  | Rough task                  |
+| ------------ | --------------------- | -------------------------- | --------------------------- |
 | **D1** | Quadruped with wheels | `Mjlab-Velocity-Flat-D1` | `Mjlab-Velocity-Rough-D1` |
 
 ---
