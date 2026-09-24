@@ -820,10 +820,10 @@ def titatit_rough_env_cfg(
             "pose_range": {
                 "x": (-0.5, 0.5),
                 "y": (-0.5, 0.5),
-                # D1 rough reset: height offset above default pose and terrain origin.
-                "z": (0.2, 0.5),
-                "roll": (-0.5, 0.5),
-                "pitch": (-0.5, 0.5),
+                # Match the converged TITATIT Flat reset; terrain provides its own height.
+                "z": (0.0, 0.0),
+                "roll": (0.0, 0.0),
+                "pitch": (0.0, 0.0),
                 "yaw": (-3.14, 3.14),
             },
             "velocity_range": {

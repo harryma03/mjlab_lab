@@ -162,7 +162,7 @@ python scripts/play.py Mjlab-Velocity-Rough-TITATIT --checkpoint-file logs/np3o/
 | 波浪 | 10% | amplitude_range=(0, 0.2)，num_waves=4 |
 
 训练初始最高等级为 2，开启距离驱动的地形课程；play 分布在所有等级上。
-重置姿态参考 D1 Rough：z 在默认高度与地形原点之上额外偏移 0.2–0.5 m，roll/pitch 为 ±0.5 rad。
+重置姿态沿用已训练的 TITATIT Flat：默认高度为地形原点上方 0.44 m，z 额外偏移为 0，roll/pitch 为 0；yaw、速度和关节重置随机化保持 Flat 设置。
 机器人模型、关节顺序、PD、观测、奖励及约束采用 TITATIT 参数；纵向命令课程从 ±1.0 扩展至 ±1.5 m/s，横向为 0。
 Rough 算法配置位于 `titatit/__init__.py` 的 `_TITATIT_ROUGH_RL_CFG`：默认 15000 轮，entropy_coef=0.003，init_noise_std=0.8。
 日志保存到 `logs/np3o/titatit_rough/`，自动包含训练配置和启动命令。台阶参数范围不代表策略已经具备对应通行能力，需训练与回放验证。
