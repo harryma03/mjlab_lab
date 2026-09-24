@@ -76,6 +76,7 @@ Available tasks:
   Mjlab-Velocity-Rough-D1H
   Mjlab-Velocity-Rough-Dynawheel
   Mjlab-Velocity-Rough-TITA
+  Mjlab-Velocity-Rough-TITATIT
   Mjlab-Velocity-Rough-Unitree-G1
   Mjlab-Velocity-Rough-Unitree-Go1
 ```
@@ -138,6 +139,34 @@ After changing configuration, start a new run so the new values take effect:
 python scripts/train.py Mjlab-Velocity-Flat-TITATIT
 ```
 
+### TITATIT 复杂地形（Rough）
+
+训练与回放：
+
+```bash
+python scripts/train.py Mjlab-Velocity-Rough-TITATIT
+python scripts/play.py Mjlab-Velocity-Rough-TITATIT --checkpoint-file logs/np3o/titatit_rough/YYYY-MM-DD_HH-MM-SS/model_15000.pt --viewer=native --num_envs=1
+```
+
+独立环境配置：`np3o/tasks/locomotion/config/titatit/titatit_rough_cfg.py`。
+调整 `_ROUGH_TERRAIN_CFG` 即可修改地形，Flat 配置不受影响。
+沿用 D1 Rough 的 8×8 m 地块、10 行×20 列难度地图和 20 m 边界：
+
+| 地形 | 比例 | 参数范围 |
+| --- | --- | --- |
+| 平地 | 20% | 平面 |
+| 金字塔台阶 | 20% | 每阶高度 0–0.2 m，踏面 0.3 m，平台 3 m |
+| 倒金字塔台阶 | 20% | 每阶高度 0–0.2 m，踏面 0.3 m，平台 3 m |
+| 正坡 / 反坡 | 各 10% | 坡度 0–1.0，平台 2 m |
+| 随机起伏 | 10% | noise_range=(0.02, 0.1)，noise_step=0.02 |
+| 波浪 | 10% | amplitude_range=(0, 0.2)，num_waves=4 |
+
+训练初始最高等级为 2，开启距离驱动的地形课程；play 分布在所有等级上。
+重置姿态参考 D1 Rough：z 在默认高度与地形原点之上额外偏移 0.2–0.5 m，roll/pitch 为 ±0.5 rad。
+机器人模型、关节顺序、PD、观测、奖励及约束采用 TITATIT 参数；纵向命令课程从 ±1.0 扩展至 ±1.5 m/s，横向为 0。
+Rough 算法配置位于 `titatit/__init__.py` 的 `_TITATIT_ROUGH_RL_CFG`：默认 15000 轮，entropy_coef=0.003，init_noise_std=0.8。
+日志保存到 `logs/np3o/titatit_rough/`，自动包含训练配置和启动命令。台阶参数范围不代表策略已经具备对应通行能力，需训练与回放验证。
+
 ## Resume training
 
 ```bash
@@ -177,6 +206,7 @@ git push
 | Robot        | Description           | Flat task                  | Rough task                  |
 | ------------ | --------------------- | -------------------------- | --------------------------- |
 | **D1** | Quadruped with wheels | `Mjlab-Velocity-Flat-D1` | `Mjlab-Velocity-Rough-D1` |
+| **TITATIT** | Quadruped with wheels | `Mjlab-Velocity-Flat-TITATIT` | `Mjlab-Velocity-Rough-TITATIT` |
 
 ---
 
