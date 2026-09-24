@@ -28,8 +28,11 @@ from __future__ import annotations
 
 import argparse
 import glob
+import json
 import os
+import shlex
 import sys
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
@@ -46,6 +49,28 @@ import np3o.tasks.locomotion  # noqa: F401 (auto-discovers all robot configs)
 from mjlab.tasks.registry import list_tasks, load_env_cfg, load_rl_cfg
 from np3o.algorithms.np3o.wrapper import MjlabNP3OWrapper
 from np3o.algorithms.np3o.runner import MjlabNP3ORunner
+
+
+def _save_run_snapshot(log_dir: str, args: argparse.Namespace, cfg, train_cfg: dict) -> None:
+    """Save the effective training configuration and exact launch command."""
+    log_path = Path(log_dir)
+    suffix = ""
+    if (log_path / "config.json").exists():
+        suffix = f"_resume_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+
+    snapshot = {
+        "args": vars(args),
+        "env_cfg": asdict(cfg),
+        "train_cfg": train_cfg,
+    }
+    (log_path / f"config{suffix}.json").write_text(
+        json.dumps(snapshot, indent=2, default=str) + "\n",
+        encoding="utf-8",
+    )
+    (log_path / f"cmd{suffix}.txt").write_text(
+        shlex.join([sys.executable, *sys.argv]) + "\n",
+        encoding="utf-8",
+    )
 
 
 def main() -> None:
@@ -154,6 +179,7 @@ def main() -> None:
 
     os.makedirs(log_dir, exist_ok=True)
     print(f"Log dir: {log_dir}")
+    _save_run_snapshot(log_dir, args, cfg, train_cfg)
 
     # ---- Runner ----
     runner = MjlabNP3ORunner(env, train_cfg, log_dir=log_dir, device=device)

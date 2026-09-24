@@ -109,7 +109,33 @@ Checkpoints and TensorBoard events are written to:
 logs/np3o/<experiment_name>/<YYYY-MM-DD_HH-MM-SS>/
 ├── model_<iter>.pt      # policy checkpoint
 ├── events.out.tfevents…  # TensorBoard
-└── ...
+├── config.json          # effective environment and NP3O configuration
+└── cmd.txt              # exact training command and Python interpreter
+```
+
+Resuming into an existing run preserves the original files and creates
+`config_resume_<timestamp>.json` and `cmd_resume_<timestamp>.txt`.
+
+### TITATIT configuration
+
+Edit `np3o/tasks/locomotion/config/titatit/titatit_flat_cfg.py` for environment settings:
+
+- `UniformVelocityCommandCfg.Ranges`: velocity command ranges.
+- `max_curriculum`: maximum curriculum forward speed.
+- `rewards`: reward weights such as `action_rate_l2`.
+- `_TITATIT_DEFAULT_JOINT_POS`: default joint pose.
+- Actuator definitions near the top of the file: stiffness, damping and limits.
+
+Edit `np3o/tasks/locomotion/config/titatit/__init__.py` for TITATIT-only training settings:
+
+- `entropy_coef`: exploration pressure.
+- `init_noise_std`: initial policy action noise.
+- `max_iterations`: total training iterations.
+
+After changing configuration, start a new run so the new values take effect:
+
+```bash
+python scripts/train.py Mjlab-Velocity-Flat-TITATIT
 ```
 
 ## Resume training
@@ -127,8 +153,21 @@ python scripts/train.py Mjlab-Velocity-Flat-D1 \
 
 ```bash
 # Play with a specific checkpoint
-python scripts/play.py Mjlab-Velocity-Flat-Dynawheel \
-    --checkpoint-file /home/yons/harryma/d1_mjlab/logs/np3o/titatit_flat/2026-09-23_14-47-50/model_600.pt
+python scripts/play.py Mjlab-Velocity-Flat-TITATIT \
+    --checkpoint-file logs/np3o/titatit_flat/YYYY-MM-DD_HH-MM-SS/model_6000.pt
+```
+
+---
+
+## Update GitHub
+
+Training logs are ignored by `.gitignore`. Review, commit and upload code changes with:
+
+```bash
+git status
+git add -A
+git commit -m "Describe this update"
+git push
 ```
 
 ---

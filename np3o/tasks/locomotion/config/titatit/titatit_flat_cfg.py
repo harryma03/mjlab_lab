@@ -875,7 +875,7 @@ def titatit_flat_env_cfg(
         ),
         "joint_acc_l2": RewardTermCfg(func=joint_acc_l2, weight=-2.5e-7, params={"asset_cfg": _ALL_JOINT_CFG}),
         "joint_pos_limits": RewardTermCfg(func=joint_pos_limits, weight=-10.0, params={"asset_cfg": _LEG_JOINT_CFG}),
-        "action_rate_l2": RewardTermCfg(func=action_rate_l2, weight=-0.01),
+        "action_rate_l2": RewardTermCfg(func=action_rate_l2, weight=-0.02),
         "undesired_contacts": RewardTermCfg(
             func=undesired_contacts, weight=-1.0,
             params={"sensor_name": "contact_forces", "body_names": "^(?!.*_foot).*", "threshold": 1.0},
@@ -934,7 +934,7 @@ def titatit_flat_env_cfg(
             heading_control_stiffness=0.5,
             debug_vis=False,
             ranges=UniformVelocityCommandCfg.Ranges(
-                lin_vel_x=(-1.0, 1.0), lin_vel_y=(-1.0, 1.0),
+                lin_vel_x=(-1.0, 1.0), lin_vel_y=(0.0, 0.0),
                 ang_vel_z=(-1.0, 1.0), heading=(-math.pi, math.pi),
             ),
         ),
@@ -953,7 +953,7 @@ def titatit_flat_env_cfg(
             "command_name": "base_velocity",
             "reward_term_name": "track_lin_vel_xy_exp",
             "reward_scale": 2.0,
-            "max_curriculum": 3.0,
+            "max_curriculum": 1.5,
             "expansion": 0.5,
             "threshold_ratio": 0.8,
         },

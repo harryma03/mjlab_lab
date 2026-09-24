@@ -12,6 +12,14 @@ from .titatit_flat_cfg import (
 from ...rl.rl_cfg import d1_np3o_runner_cfg
 
 
+_TITATIT_RL_CFG = d1_np3o_runner_cfg(
+    experiment_name="titatit_flat",
+    max_iterations=6000,
+)
+_TITATIT_RL_CFG["algorithm"]["entropy_coef"] = 0.003
+_TITATIT_RL_CFG["policy"]["init_noise_std"] = 0.8
+
+
 register_mjlab_task(
     task_id="Mjlab-Velocity-Flat-TITATIT",
 
@@ -21,10 +29,7 @@ register_mjlab_task(
 
     play_env_cfg=titatit_flat_play_env_cfg(),
 
-    rl_cfg=d1_np3o_runner_cfg(
-        experiment_name="titatit_flat",
-        max_iterations=6000,
-    ),
+    rl_cfg=_TITATIT_RL_CFG,
 
     runner_cls=MjlabNP3ORunner,
 )
