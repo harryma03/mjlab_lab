@@ -216,12 +216,26 @@ def cost_dof_vel_limits(
 def cost_hip_pos(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    default_joint_pos_patterns: dict[str, float] | None = None,
 ) -> torch.Tensor:
-    """Sum of squared hip-joint deviation from zero."""
+    """Sum of squared hip-joint deviation from zero or a configured default."""
     asset_cfg.resolve(env.scene)
     asset = env.scene[asset_cfg.name]
     q = asset.data.joint_pos[:, asset_cfg.joint_ids]
-    raw = torch.sum(torch.square(q), dim=-1)
+    if default_joint_pos_patterns is None:
+        q_default = 0.0
+    else:
+        q_default = _cached_tensor_from_patterns(
+            asset=asset,
+            ids=asset_cfg.joint_ids,
+            names=asset.joint_names,
+            count=asset.num_joints,
+            device=env.device,
+            patterns=default_joint_pos_patterns,
+            value_dim=1,
+            kind="hip_default_joint_pos",
+        )
+    raw = torch.sum(torch.square(q - q_default), dim=-1)
     return raw * _gravity_gate(asset)
 
 

@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 import torch
 
 from mjlab.entity import Entity
+from mjlab.envs.mdp import height_scan
 from mjlab.managers import RewardTermCfg
 from mjlab.managers.scene_entity_config import SceneEntityCfg
 from mjlab.utils.lab_api.math import (
@@ -28,7 +29,7 @@ from mjlab.utils.lab_api.math import (
 
 if TYPE_CHECKING:
     from mjlab.envs import ManagerBasedRLEnv
-    from mjlab.sensor import ContactSensor, RayCastSensor
+    from mjlab.sensor import ContactSensor
 
 
 # ---------------------------------------------------------------------------
@@ -258,19 +259,15 @@ def base_height_l2(
     """
     # extract the used quantities (to enable type-hinting)
     asset: Entity = env.scene[asset_cfg.name]
-    if sensor_cfg is not None:
-        sensor: RayCastSensor = env.scene[sensor_cfg.name]
-        # Adjust the target height using the sensor data
-        ray_hits = sensor.data.ray_hits_w[..., 2]
-        if torch.isnan(ray_hits).any() or torch.isinf(ray_hits).any() or torch.max(torch.abs(ray_hits)) > 1e6:
-            adjusted_target_height = asset.data.root_link_pos_w[:, 2]
-        else:
-            adjusted_target_height = target_height + torch.mean(ray_hits, dim=1)
+    if sensor_cfg is None:
+        height_error = asset.data.root_link_pos_w[:, 2] - target_height
     else:
-        # Use the provided target height directly for flat terrain
-        adjusted_target_height = target_height
-    # Compute the L2 squared penalty
-    reward = torch.square(asset.data.root_link_pos_w[:, 2] - adjusted_target_height)
+        heights = height_scan(env, sensor_name=sensor_cfg.name, miss_value=target_height)
+        heights = torch.nan_to_num(
+            heights, nan=target_height, posinf=target_height, neginf=target_height
+        )
+        height_error = torch.mean(heights, dim=1) - target_height
+    reward = torch.square(height_error)
     reward *= _upright_gate(env.scene["robot"])
     return reward
 

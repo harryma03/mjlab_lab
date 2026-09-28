@@ -461,7 +461,10 @@ def _titatit_rough_cost_terms() -> dict:
         "hip_pos": CostTermCfg(
             func=cost_hip_pos,
             scale=2.0, d_value=0.0, k_value=0.01,
-            params={"asset_cfg": SceneEntityCfg("robot", joint_names=HIP_JOINT_PATTERN)},
+            params={
+                "asset_cfg": SceneEntityCfg("robot", joint_names=HIP_JOINT_PATTERN),
+                "default_joint_pos_patterns": _TITATIT_DEFAULT_JOINT_POS,
+            },
         ),
         "default_joint": CostTermCfg(
             func=cost_default_joint,
@@ -879,7 +882,11 @@ def titatit_rough_env_cfg(
         "lin_vel_z_l2": RewardTermCfg(func=lin_vel_z_l2, weight=-2.0),
         "ang_vel_xy_l2": RewardTermCfg(func=ang_vel_xy_l2, weight=-0.05),
         "flat_orientation_l2": RewardTermCfg(func=flat_orientation_l2, weight=-1.0),
-        "base_height_l2": RewardTermCfg(func=base_height_l2, weight=-1.0, params={"target_height": 0.363}),
+        "base_height_l2": RewardTermCfg(
+            func=base_height_l2,
+            weight=-1.0,
+            params={"target_height": 0.363, "sensor_cfg": SceneEntityCfg("height_scanner")},
+        ),
         "joint_torques_l2": RewardTermCfg(func=joint_torques_l2, weight=0.0, params={"asset_cfg": _LEG_ACTUATOR_CFG}),
         "joint_vel_l2": RewardTermCfg(func=joint_vel_l2, weight=0.0, params={"asset_cfg": _LEG_JOINT_CFG}),
         "joint_vel_wheel_l2": RewardTermCfg(

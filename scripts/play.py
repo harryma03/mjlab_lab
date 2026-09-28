@@ -62,7 +62,7 @@ def _resolve_checkpoint(checkpoint: str | None, task_id: str) -> str | None:
     if checkpoint is not None:
         path = Path(checkpoint)
         if path.is_dir():
-            matches = sorted(path.glob("model_*.pt"))
+            matches = sorted(path.glob("model_*.pt"), key=lambda p: int(p.stem.rsplit("_", 1)[-1]))
             if not matches:
                 raise FileNotFoundError(f"No model_*.pt found in: {checkpoint}")
             return str(matches[-1])
@@ -77,7 +77,7 @@ def _resolve_checkpoint(checkpoint: str | None, task_id: str) -> str | None:
     runs = sorted(task_log_dir.iterdir(), reverse=True)
     for run in runs:
         if run.is_dir():
-            models = sorted(run.glob("model_*.pt"))
+            models = sorted(run.glob("model_*.pt"), key=lambda p: int(p.stem.rsplit("_", 1)[-1]))
             if models:
                 return str(models[-1])
     return None
