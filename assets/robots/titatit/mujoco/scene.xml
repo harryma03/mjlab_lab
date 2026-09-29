@@ -1,5 +1,5 @@
 <mujoco model="titatit scene">
-  <include file="wheeled_titatit_rl.xml"/>
+  <include file="wheeled_titatit_mjlab.xml"/>
 
   <statistic center="0 0 0.1" extent="0.8"/>
 

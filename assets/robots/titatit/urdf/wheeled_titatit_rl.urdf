@@ -31,12 +31,17 @@
           rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <box size="0.532 0.194 0.114"/>
-      </geometry>
-    </collision>
+    <!-- D1-style compound hull: split each longitudinal segment across Y.
+         The union preserves body coverage while keeping every heightfield
+         contact primitive below MuJoCo\x27s 50-triangle limit. -->
+    <collision><origin rpy="0 0 0" xyz="0.365560 -0.075 0.016"/><geometry><box size="0.28 0.15 0.19"/></geometry></collision>
+    <collision><origin rpy="0 0 0" xyz="0.365560 0.075 0.016"/><geometry><box size="0.28 0.15 0.19"/></geometry></collision>
+    <collision><origin rpy="0 0 0" xyz="0.165560 -0.075 0.016"/><geometry><box size="0.28 0.15 0.19"/></geometry></collision>
+    <collision><origin rpy="0 0 0" xyz="0.165560 0.075 0.016"/><geometry><box size="0.28 0.15 0.19"/></geometry></collision>
+    <collision><origin rpy="0 0 0" xyz="-0.165375 -0.075 0.016"/><geometry><box size="0.28 0.15 0.19"/></geometry></collision>
+    <collision><origin rpy="0 0 0" xyz="-0.165375 0.075 0.016"/><geometry><box size="0.28 0.15 0.19"/></geometry></collision>
+    <collision><origin rpy="0 0 0" xyz="-0.365375 -0.075 0.016"/><geometry><box size="0.28 0.15 0.19"/></geometry></collision>
+    <collision><origin rpy="0 0 0" xyz="-0.365375 0.075 0.016"/><geometry><box size="0.28 0.15 0.19"/></geometry></collision>
     <inertial>
         <origin xyz="9.657E-05 4.946E-06 0.018311" rpy="0 0 0" />
         <mass value="26.085" />
@@ -132,9 +137,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.1"/>
+      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.075"/>
       <geometry>
-        <box size="0.2 0.0245 0.034"/>
+        <box size="0.26 0.06 0.08"/>
       </geometry>
     </collision>
     <inertial>
@@ -171,9 +176,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.1"/>
+      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.095"/>
       <geometry>
-        <box size="0.2 0.032 0.048"/>
+        <box size="0.25 0.05 0.07"/>
       </geometry>
     </collision>
     <inertial>
@@ -274,9 +279,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.1"/>
+      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.075"/>
       <geometry>
-        <box size="0.2 0.0245 0.034"/>
+        <box size="0.26 0.06 0.08"/>
       </geometry>
     </collision>
     <inertial>
@@ -311,9 +316,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.1"/>
+      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.095"/>
       <geometry>
-        <box size="0.2 0.032 0.048"/>
+        <box size="0.25 0.05 0.07"/>
       </geometry>
     </collision>
     <inertial>
@@ -418,9 +423,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.1"/>
+      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.075"/>
       <geometry>
-        <box size="0.2 0.0245 0.034"/>
+        <box size="0.26 0.06 0.08"/>
       </geometry>
     </collision>
     <inertial>
@@ -456,9 +461,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.1"/>
+      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.095"/>
       <geometry>
-        <box size="0.2 0.032 0.048"/>
+        <box size="0.25 0.05 0.07"/>
       </geometry>
     </collision>
     <inertial>
@@ -562,9 +567,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.1"/>
+      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.075"/>
       <geometry>
-        <box size="0.2 0.0245 0.034"/>
+        <box size="0.26 0.06 0.08"/>
       </geometry>
     </collision>
     <inertial>
@@ -602,9 +607,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.1"/>
+      <origin rpy="0 1.57079632679 0" xyz="0 0 -0.095"/>
       <geometry>
-        <box size="0.2 0.032 0.048"/>
+        <box size="0.25 0.05 0.07"/>
       </geometry>
     </collision>
     <inertial>

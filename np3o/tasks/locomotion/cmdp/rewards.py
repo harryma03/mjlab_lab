@@ -20,6 +20,7 @@ from mjlab.entity import Entity
 from mjlab.envs.mdp import height_scan
 from mjlab.managers import RewardTermCfg
 from mjlab.managers.scene_entity_config import SceneEntityCfg
+from mjlab.sensor import ContactSensor, TerrainHeightSensor
 from mjlab.utils.lab_api.math import (
     quat_apply,
     quat_apply_inverse,
@@ -928,6 +929,68 @@ def feet_distance_xy_exp(
     reward = torch.exp(-stance_diff.sum(dim=1) / (std**2))
     reward *= _upright_gate(env.scene["robot"])
     return reward
+
+def _clearance_shortfall(
+    peak_height: torch.Tensor,
+    wheel_radius: float,
+    target_clearance: float,
+    min_liftoff: float,
+) -> torch.Tensor:
+    """Squared shortfall below target; ignore contact jitter and over-clearance."""
+    clearance = peak_height - wheel_radius
+    valid_swing = clearance >= min_liftoff
+    shortfall = torch.clamp(target_clearance - clearance, min=0.0) / target_clearance
+    return torch.where(valid_swing, shortfall.square(), torch.zeros_like(shortfall))
+
+
+class WheelSwingClearance:
+    """Penalize insufficient terrain-relative wheel clearance at touchdown."""
+
+    def __init__(self, cfg: RewardTermCfg, env: ManagerBasedRLEnv):
+        height_sensor: TerrainHeightSensor = env.scene[cfg.params["height_sensor_name"]]
+        self.peak_heights = torch.zeros(
+            (env.num_envs, height_sensor.num_frames), device=env.device, dtype=torch.float32
+        )
+        self.step_dt = env.step_dt
+
+    def __call__(
+        self,
+        env: ManagerBasedRLEnv,
+        sensor_name: str,
+        body_names: str,
+        height_sensor_name: str,
+        command_name: str,
+        wheel_radius: float,
+        target_clearance: float,
+        min_liftoff: float,
+        command_threshold: float,
+    ) -> torch.Tensor:
+        contact_sensor: ContactSensor = env.scene[sensor_name]
+        height_sensor: TerrainHeightSensor = env.scene[height_sensor_name]
+        command = env.command_manager.get_command(command_name)
+        body_ids = _contact_body_ids(env, sensor_name, body_names)
+        in_air = contact_sensor.data.found[:, body_ids] == 0
+        self.peak_heights = torch.where(
+            in_air, torch.maximum(self.peak_heights, height_sensor.data.heights), self.peak_heights
+        )
+        first_contact = contact_sensor.compute_first_contact(dt=self.step_dt)[:, body_ids]
+        active = (torch.norm(command[:, :2], dim=1) + command[:, 2].abs()) > command_threshold
+        cost = (
+            _clearance_shortfall(self.peak_heights, wheel_radius, target_clearance, min_liftoff)
+            * first_contact.float()
+        ).sum(dim=1) * active.float()
+
+        clearance = self.peak_heights - wheel_radius
+        valid_landing = first_contact & (clearance >= min_liftoff)
+        env.extras["log"]["Metrics/wheel_peak_clearance_mean"] = (
+            (clearance * valid_landing.float()).sum() / valid_landing.sum().clamp(min=1)
+        )
+        self.peak_heights = torch.where(first_contact, torch.zeros_like(self.peak_heights), self.peak_heights)
+        return cost
+
+    def reset(self, env_ids: torch.Tensor) -> None:
+        self.peak_heights[env_ids] = 0.0
+
 
 def feet_height(
     env: ManagerBasedRLEnv,

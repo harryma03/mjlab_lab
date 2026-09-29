@@ -49,7 +49,15 @@ from mjlab.managers import (
 )
 from mjlab.managers.scene_entity_config import SceneEntityCfg
 from mjlab.scene import SceneCfg
-from mjlab.sensor import ContactSensorCfg, ContactMatch, RayCastSensorCfg, GridPatternCfg, ObjRef
+from mjlab.sensor import (
+    ContactSensorCfg,
+    ContactMatch,
+    GridPatternCfg,
+    ObjRef,
+    RayCastSensorCfg,
+    RingPatternCfg,
+    TerrainHeightSensorCfg,
+)
 from mjlab.sim import MujocoCfg, SimulationCfg
 from mjlab.terrains import (
     BoxFlatTerrainCfg,
@@ -85,6 +93,7 @@ from ...cmdp.rewards import (
     track_lin_vel_xy_exp,
     undesired_contacts,
     upward,
+    WheelSwingClearance,
 )
 
 # ===========================================================================
@@ -401,6 +410,19 @@ def dynawheel_rough_env_cfg(
             # GPU memory on both flat and rough tasks.
             history_length=2,
         ),
+        TerrainHeightSensorCfg(
+            name="wheel_height_scan",
+            frame=tuple(
+                ObjRef(type="site", name=f"{leg}_WHEEL_tor", entity="robot")
+                for leg in ("LF", "LH", "RF", "RH")
+            ),
+            pattern=RingPatternCfg.single_ring(radius=0.04, num_samples=4),
+            ray_alignment="yaw",
+            max_distance=1.0,
+            exclude_parent_body=True,
+            include_geom_groups=(0,),
+            reduction="min",
+        ),
     ]
 
     if has_terrain:
@@ -650,6 +672,20 @@ def dynawheel_rough_env_cfg(
         "joint_acc_l2": RewardTermCfg(func=joint_acc_l2, weight=-1.0e-6, params={"asset_cfg": _ALL_JOINT_CFG}),
         "joint_pos_limits": RewardTermCfg(func=joint_pos_limits, weight=-0.0, params={"asset_cfg": _LEG_JOINT_CFG}),
         "action_rate_l2": RewardTermCfg(func=action_rate_l2, weight=-0.01),
+        "wheel_swing_clearance": RewardTermCfg(
+            func=WheelSwingClearance,
+            weight=-1.0,
+            params={
+                "sensor_name": "contact_forces",
+                "body_names": ".*_wheel_motor",
+                "height_sensor_name": "wheel_height_scan",
+                "command_name": "base_velocity",
+                "wheel_radius": 0.116,
+                "target_clearance": 0.05,
+                "min_liftoff": 0.005,
+                "command_threshold": 0.1,
+            },
+        ),
         "undesired_contacts": RewardTermCfg(
             func=undesired_contacts, weight=-1.0,
             params={"sensor_name": "contact_forces", "body_names": "^(?!.*_wheel_motor).*", "threshold": 1.0},
